@@ -19,7 +19,9 @@ class UserInput extends Component {
     const { name } = this.state;
     if (name) {
       localStorage.setItem("name", name);
-      window.location.href = "/game";
+      localStorage.setItem("score", 0);
+      localStorage.setItem("topScore", 0);
+      window.location.reload();
     }
   };
 
