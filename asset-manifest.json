@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/react-tile-matching-game/static/css/main.759ca71f.css",
+    "main.js": "/react-tile-matching-game/static/js/main.d1ab81ec.js",
+    "static/js/453.b1ac5e9c.chunk.js": "/react-tile-matching-game/static/js/453.b1ac5e9c.chunk.js",
+    "index.html": "/react-tile-matching-game/index.html",
+    "main.759ca71f.css.map": "/react-tile-matching-game/static/css/main.759ca71f.css.map",
+    "main.d1ab81ec.js.map": "/react-tile-matching-game/static/js/main.d1ab81ec.js.map",
+    "453.b1ac5e9c.chunk.js.map": "/react-tile-matching-game/static/js/453.b1ac5e9c.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.759ca71f.css",
+    "static/js/main.d1ab81ec.js"
+  ]
+}
