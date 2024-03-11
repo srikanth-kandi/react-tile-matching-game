@@ -3,12 +3,12 @@ import GameTile from "../GameTile";
 import "./index.css";
 
 const initialGameTiles = [
-  { value: "/img/pizza.png", flipStatus: false },
-  { value: "/img/burger.png", flipStatus: false },
-  { value: "/img/fries.png", flipStatus: false },
-  { value: "/img/hotdog.png", flipStatus: false },
-  { value: "/img/popcorn.png", flipStatus: false },
-  { value: "/img/cookie.png", flipStatus: false }
+  { value: "./img/pizza.png", flipStatus: false },
+  { value: "./img/burger.png", flipStatus: false },
+  { value: "./img/fries.png", flipStatus: false },
+  { value: "./img/hotdog.png", flipStatus: false },
+  { value: "./img/popcorn.png", flipStatus: false },
+  { value: "./img/cookie.png", flipStatus: false }
 ];
 
 const shuffle = (array) => {
@@ -39,6 +39,7 @@ const Game = () => {
   const [choiceOne, setChoiceOne] = useState(null);
   const [choiceTwo, setChoiceTwo] = useState(null);
   const [gameEnd, setGameEnd] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
   const startTimer = useCallback(() => {
     timer.current = setInterval(() => {
@@ -79,6 +80,7 @@ const Game = () => {
 
   useEffect(() => {
     if (choiceOne && choiceTwo) {
+      setDisabled(true);
       if (choiceOne.value === choiceTwo.value) {
         setScore(score + 1);
         setTopScore(topScore < score + 1 ? score + 1 : topScore);
@@ -102,6 +104,7 @@ const Game = () => {
   const resetTurn = () => {
     setChoiceOne(null);
     setChoiceTwo(null);
+    setDisabled(false);
   }
 
   const handleChoice = tile => {
@@ -151,6 +154,7 @@ const Game = () => {
                 tile={tile}
                 handleChoice={handleChoice}
                 flipped={tile === choiceOne || tile === choiceTwo || tile.flipStatus}
+                disabled={disabled}
               />
             ))}
           </ul>
