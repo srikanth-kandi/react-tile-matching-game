@@ -1,169 +1,156 @@
-import { Component } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import GameTile from "../GameTile";
 import "./index.css";
 
 const initialGameTiles = [
-  {id: 0, value: "🍕", flipStatus: false},
-  {id: 1, value: "🍔", flipStatus: false},
-  {id: 2, value: "🍟", flipStatus: false},
-  {id: 3, value: "🌭", flipStatus: false},
-  {id: 4, value: "🍿", flipStatus: false},
-  {id: 5, value: "🍪", flipStatus: false},
-  {id: 6, value: "🍕", flipStatus: false},
-  {id: 7, value: "🍔", flipStatus: false},
-  {id: 8, value: "🍟", flipStatus: false},
-  {id: 9, value: "🌭", flipStatus: false},
-  {id: 10, value: "🍿", flipStatus: false},
-  {id: 11, value: "🍪", flipStatus: false}
-]
+  { value: "/img/pizza.png", flipStatus: false },
+  { value: "/img/burger.png", flipStatus: false },
+  { value: "/img/fries.png", flipStatus: false },
+  { value: "/img/hotdog.png", flipStatus: false },
+  { value: "/img/popcorn.png", flipStatus: false },
+  { value: "/img/cookie.png", flipStatus: false }
+];
 
-const shuffle = array => {
-  let currentIndex = array.length, randomIndex;
+const shuffle = (array) => {
+  let arrayCopy = [...array].map((tile) => ({ ...tile, id: Math.random() }));
+  let currentIndex = arrayCopy.length, randomIndex;
   while (currentIndex !== 0) {
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
-    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    [arrayCopy[currentIndex], arrayCopy[randomIndex]] = [
+      arrayCopy[randomIndex],
+      arrayCopy[currentIndex],
+    ];
   }
-  return array;
-}
+  return arrayCopy;
+};
 
 const playerName = localStorage.getItem("name") || "Player";
 
-class Game extends Component {
-  state = {
-    score: localStorage.getItem("score") || 0,
-    minutes: 0,
-    seconds: 0,
-    topScore: localStorage.getItem("topScore") || 0,
-    shuffledTiles: shuffle(initialGameTiles),
-    choiceOne: null,
-    choiceTwo: null,
-    gameEnd: false,
-  }
+const Game = () => {
+  let timer = useRef(null);
+  const [score, setScore] = useState(localStorage.getItem("score") || 0);
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
+  const [topScore, setTopScore] = useState(
+    localStorage.getItem("topScore") || 0
+  );
+  const [shuffledTiles, setShuffledTiles] = useState(shuffle([...initialGameTiles, ...initialGameTiles]));
+  const [choiceOne, setChoiceOne] = useState(null);
+  const [choiceTwo, setChoiceTwo] = useState(null);
+  const [gameEnd, setGameEnd] = useState(false);
 
-  startTimer = () => {
-    this.timer = setInterval(() => {
-      const {minutes, seconds} = this.state;
-      if (seconds < 59) {
-        this.setState({seconds: seconds + 1});
-      } else {
-        this.setState({minutes: minutes + 1, seconds: 0});
-      }
+  const startTimer = useCallback(() => {
+    timer.current = setInterval(() => {
+      setSeconds((prevSeconds) => {
+        if (prevSeconds < 59) {
+          return prevSeconds + 1;
+        } else {
+          setMinutes((prevMinutes) => prevMinutes + 1);
+          return 0;
+        }
+      });
     }, 1000);
-  }
+  }, [setMinutes, setSeconds]);
 
-  componentDidMount() {
-    this.startTimer();
-  }
+  useEffect(() => {
+    startTimer();
+    return () => {
+      clearInterval(timer.current);
+    };
+  }, [startTimer]);
 
-  checkGameEnd = () => {
-    const {shuffledTiles, topScore} = this.state;
+  const checkGameEnd = useCallback(() => {
     const isGameEnd = shuffledTiles.every((tile) => tile.flipStatus);
     if (isGameEnd) {
       localStorage.setItem("score", 0);
       localStorage.setItem("topScore", topScore);
-      clearInterval(this.timer);
-      this.setState({gameEnd: true});
+      clearInterval(timer.current);
+      setGameEnd(true);
     } else {
       return;
     }
-  }
+  }, [shuffledTiles, topScore]);
 
-  checkFlippedTiles = () => {
-    const {flippedTiles, score, topScore} = this.state;
-    if (flippedTiles.length < 2) {
-      return;
-    } else {
-      const [firstTile, secondTile] = flippedTiles;
-      if (firstTile.value === secondTile.value) {
-        this.setState({
-          score: score + 1,
-          flippedTiles: [],
-          topScore: topScore < score + 1 ? score + 1 : topScore
+  // useEffect for checking game end
+  useEffect(() => {
+    checkGameEnd();
+  }, [shuffledTiles, topScore, checkGameEnd]);
+
+  useEffect(() => {
+    if (choiceOne && choiceTwo) {
+      if (choiceOne.value === choiceTwo.value) {
+        setScore(score + 1);
+        setTopScore(topScore < score + 1 ? score + 1 : topScore);
+        setShuffledTiles(prevTiles => {
+          return prevTiles.map((tile) => {
+            if (tile.value === choiceOne.value) {
+              return { ...tile, flipStatus: true };
+            } else {
+              return tile;
+            }
+          });
         });
+        resetTurn();
       } else {
-        // set the shuffledTiles's flipStatus to false
-        // for the two tiles in flippedTiles
-        const {shuffledTiles} = this.state;
-        const newTiles = shuffledTiles.map((tile) => {
-          if (tile.id === firstTile.id || tile.id === secondTile.id) {
-            return {...tile, flipStatus: false};
-          }
-          return tile;
-        });
-        this.setState({
-          score: score - 1 < 0 ? 0 : score - 1,
-          flippedTiles: [],
-          shuffledTiles: newTiles
-        });
+        setScore(score - 1 < 0 ? 0 : score - 1);
+        setTimeout(() => resetTurn(), 1000);
       }
     }
+  }, [choiceOne, choiceTwo, score, topScore, shuffledTiles]);
+
+  const resetTurn = () => {
+    setChoiceOne(null);
+    setChoiceTwo(null);
   }
 
-  changeFlipValue = (newFlipValue, id) => {
-    console.log('card flipped');
-    const {shuffledTiles, flippedTiles} = this.state;
-    const newTiles = shuffledTiles.map((tile) => {
-      if (tile.id === id) {
-        return {...tile, flipStatus: newFlipValue};
-      }
-      return tile;
-    });
-    this.setState({
-      shuffledTiles: newTiles,
-      flippedTiles: [...flippedTiles, {id, value: newTiles[id].value}]
-    });
-  }
+  const handleChoice = tile => {
+    choiceOne ? setChoiceTwo(tile) : setChoiceOne(tile);
+  };
 
-  render() {
-    const {
-      score,
-      minutes,
-      seconds,
-      topScore,
-      shuffledTiles,
-      gameEnd
-    } = this.state;
-    return (
-      <div className="game-container">
-        <h1 className="game-title">Tile Matching Game</h1>
-        <div className="score-container">
-          <p className="score">Score: {score}</p>
-          <p className="score">Top Score: {topScore}</p>
-          <p className="timer">
-            Time: {minutes > 9 ? minutes : `0${minutes}` }:{seconds > 9 ? seconds : `0${seconds}`}
-          </p>
-        </div>
-        <div className="game-board-container">
-          <p className="player-greeting">Welcome {playerName} 👋 👋</p>
-          {gameEnd ? (
-            <div className="game-end-container">
-              <p className="game-end-message">Congratulations! You won 🎉 🎉</p>
-              <button
-                type="button"
-                className="play-again-button"
-                onClick={() => window.location.reload()}
-              >
-                Play Again
-              </button>
-            </div>
-          ) : (
-            <ul className="game-board">
-              {shuffledTiles.map((tile) => (
-                <GameTile
-                  key={tile.id}
-                  value={tile.value}
-                  id={tile.id}
-                  flipStatus={tile.flipStatus}
-                  changeFlipValue={this.changeFlipValue}
-                />
-              ))}
-            </ul>
-          )}
-        </div>
+  return (
+    <div className="game-container">
+      <h1 className="game-title">Tile Matching Game</h1>
+      <div className="score-container">
+        <p className="score">Score: {score}</p>
+        <p className="score">Top Score: {topScore}</p>
+        <p className="timer">
+          Time: {minutes > 9 ? minutes : `0${minutes}`}:
+          {seconds > 9 ? seconds : `0${seconds}`}
+        </p>
       </div>
-    );
-  }
-}
+      <div className="game-board-container">
+        <p className="player-greeting">Welcome {playerName} 👋 👋</p>
+        {gameEnd ? (
+          <div className="game-end-container">
+            <p className="game-end-message">Game Finished!</p>
+            <p className="game-end-message">Score: {score}</p>
+            <p className="game-end-message">
+              Time Taken: {minutes > 9 ? minutes : `0${minutes}`}:{seconds > 9 ? seconds : `0${seconds}`}
+            </p>
+            <button
+              type="button"
+              className="play-again-button"
+              onClick={() => window.location.reload()}
+            >
+              Play Again
+            </button>
+          </div>
+        ) : (
+          <ul className="game-board">
+            {shuffledTiles.map((tile) => (
+              <GameTile
+                key={tile.id}
+                tile={tile}
+                handleChoice={handleChoice}
+                flipped={tile === choiceOne || tile === choiceTwo || tile.flipStatus}
+              />
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default Game;

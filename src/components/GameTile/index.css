@@ -1,5 +1,5 @@
 .game-tile {
-    background-color: #fff;
+    /* background-color: #fff;
     border: 1px solid #ccc;
     padding: 20px;
     width: 48px;
@@ -7,7 +7,47 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 48px;
     margin: 3px;
+    cursor: pointer; */
+    width: 90px;
+    height: 90px;
+    margin: 5px;
     cursor: pointer;
+    position: relative;
+}
+
+.game-tile img {
+    width: 100%;
+    display: block;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+}
+
+img:hover {
+    border: 2px solid grey;
+}
+
+/* front of tile - the picture */
+
+.game-tile .front {
+    transform: rotateY(90deg);
+    transition: all ease-in 0.2s;
+    position: absolute;
+}
+
+.flipped .front {
+    transform: rotateY(0deg);
+    transition-delay: 0.2s;
+}
+
+/* back of tile - cover */
+
+.game-tile .back {
+    transition: all ease-in 0.2s;
+    transition-delay: 0.2s;
+}
+
+.flipped .back {
+    transform: rotateY(90deg);
+    transition-delay: 0s;
 }

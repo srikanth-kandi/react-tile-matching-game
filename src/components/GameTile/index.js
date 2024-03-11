@@ -1,34 +1,19 @@
-import React, { useState } from "react";
-import ReactCardFlip from "react-card-flip";
 import "./index.css";
 
 const GameTile = (props) => {
-  const { id, value, flipStatus, changeFlipValue } = props;
-  const [flip, setFlip] = useState(flipStatus);
+  const { tile, handleChoice, flipped } = props;
+  const { value } = tile;
   const onChangeFlip = () => {
-    setFlip(!flip);
-    changeFlipValue(!flip, id);
+    handleChoice(tile);
   };
-  if (flipStatus) {
-    return <li className="game-tile">{value}</li>;
-  } else {
-    return (
-      <li className="game-tile">
-        <ReactCardFlip isFlipped={flip} flipDirection="vertical">
-          <div className="front" onClick={onChangeFlip}>
-            <span role="img" aria-label="game-tile">
-              ❓
-            </span>
-          </div>
-          <div className="back" onClick={onChangeFlip}>
-            <span role="img" aria-label="game-tile">
-              {value}
-            </span>
-          </div>
-        </ReactCardFlip>
-      </li>
-    );
-  }
+  return (
+    <li className="game-tile">
+      <div className={flipped ? "flipped" : ""}>
+          <img className="front" src={value} alt="tile front" />
+          <img className="back" src="/img/cover.jpg" alt="tile back" onClick={onChangeFlip} />
+      </div>
+    </li>
+  );
 };
 
 export default GameTile;
