@@ -129,8 +129,20 @@ const Game = () => {
           {seconds > 9 ? seconds : `0${seconds}`}
         </p>
       </div>
+      <div className="score-sm-container">
+        <div className="score-sm">
+          <p className="score-sm-p">Score: {score}</p>
+          <p className="score-sm-p">Top Score: {topScore}</p>
+        </div>
+        <div className="timer-sm-container">
+          <p className="timer-sm">
+            Time: {minutes > 9 ? minutes : `0${minutes}`}:
+            {seconds > 9 ? seconds : `0${seconds}`}
+          </p>
+        </div>
+      </div>
       <div className="game-board-container">
-        <p className="player-greeting">Welcome {playerName} 👋 👋</p>
+        <p className="player-greeting">Welcome {playerName} 👋</p>
         {gameEnd ? (
           <div className="game-end-container">
             <p className="game-end-message">Game Finished!</p>
