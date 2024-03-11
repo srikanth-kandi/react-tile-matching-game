@@ -83,6 +83,30 @@
     padding: 10px;
 }
 
+.game-controls {
+    display: flex;
+    padding-top: 20px;
+    justify-content: flex-end;
+    width: 80%;
+    max-width: 720px;
+}
+
+.restart-button {
+    background-color: transparent;
+    border: 2px solid lightcoral;
+    color: red;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.restart-button:hover {
+    background-color: red;
+    color: white;
+}
+
 @media screen and (max-width: 576px) {
     .game-title {
         font-size: 24px;

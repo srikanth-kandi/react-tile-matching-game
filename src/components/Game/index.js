@@ -108,6 +108,13 @@ const Game = () => {
     choiceOne ? setChoiceTwo(tile) : setChoiceOne(tile);
   };
 
+  const restartGame = () => {
+    localStorage.setItem("score", 0);
+    localStorage.setItem("topScore", topScore);
+    localStorage.removeItem("name");
+    window.location.reload();
+  }
+
   return (
     <div className="game-container">
       <h1 className="game-title">Tile Matching Game</h1>
@@ -148,6 +155,15 @@ const Game = () => {
             ))}
           </ul>
         )}
+      </div>
+      <div className="game-controls">
+        <button
+          type="button"
+          className="restart-button"
+          onClick={restartGame}
+        >
+          Restart Game
+        </button>
       </div>
     </div>
   );
